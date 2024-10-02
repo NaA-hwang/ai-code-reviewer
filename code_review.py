@@ -44,17 +44,16 @@ def generate_review(diff):
     You must follow the given YAML format exactly, and the output must be completely precise.
     You should ensure that all answers are in Korean.
     
-    Code Comparison:
-    {diff}
+    Code comparison will be given by the user.
     """
     
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    response = openai.chat.completions.create(
-        model="gpt-4o",
-        prompt=prompt,
-        max_tokens=1000,
-        temperature=0
-    )
+    response = openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{role: "system", content: prompt},
+                    {role: "user", content: diff}],
+        temperature: 0
+    })
     return response.choices[0].message
 
 if __name__ == "__main__":
