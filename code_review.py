@@ -5,7 +5,7 @@ from github import Github
 def get_diff(pull_number):
     # 환경 변수에서 리포지토리 정보 가져오기
     repo_name = os.getenv('GITHUB_REPOSITORY')
-    g = Github(os.getenv('TOKEN_GITHUB'))
+    g = Github(os.getenv('GH_TOKEN'))
     repo = g.get_repo(repo_name)
     pull = repo.get_pull(pull_number)
 
