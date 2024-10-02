@@ -50,8 +50,8 @@ def generate_review(diff):
     openai.api_key = os.getenv("OPENAI_API_KEY")
     response = openai.chat.completions.create(
         model="gpt-4o",
-        messages=[{role: "system", content: prompt},
-                    {role: "user", content: diff}],
+        messages=[{"role": "system", "content": prompt},
+                    {"role": "user", "content": diff}],
         temperature=0
     )
     return response.choices[0].message.content
