@@ -11,14 +11,24 @@ def get_diff(pull_number):
 
     # PR에서 변경된 파일 목록을 가져와 diff 생성
     files = pull.get_files()
-    diff = ""
+    changes = []
     for file in files:
-        diff += f"File: {file.filename}\n"  # 파일 이름 추가
-        diff += f"Changes: {file.patch}\n\n"  # 변경된 부분 추가
+        if file.patch:
+            for line in file.patch.split("\n"):
+                # '-'로 시작하는 줄은 삭제된 코드, '+'로 시작하는 줄은 추가된 코드
+                if line.startswith('+'):
+                    changes.append({
+                        "file": file.filename,
+                        "line": line,
+                        "patch": file.patch
+                    })
 
-    return diff
+    return changes
 
 def generate_review(diff):
+    review_comments = []
+    
+    # 각 파일 및 변경된 코드에 대해 리뷰 생성
     prompt = f"""
     You are a strict and perfect code reviewer. You cannot tell any lies.
     Please evaluate the code added or changed through Pull Requests.
@@ -45,25 +55,33 @@ def generate_review(diff):
     You should ensure that all answers are in Korean.
     
     Code comparison will be given by the user.
+    코드 변경:
+    {change['line']}
     """
-    
+        
     openai.api_key = os.getenv("OPENAI_API_KEY")
     response = openai.chat.completions.create(
         model="gpt-4o",
-        messages=[{"role": "system", "content": prompt},
-                    {"role": "user", "content": diff}],
+        messages=[{"role": "system", "content": prompt}]
         temperature=0
     )
-    return response.choices[0].message.content
+    review_comments.append({
+        "path": change['file'],  # 파일 이름
+        "position": change['line'],  # 변경된 줄
+        "body": response.choices[0].message.content  # AI가 생성한 리뷰
+    })
+    
+    return review_comments
+
 
 if __name__ == "__main__":
     # GitHub Actions에서 제공하는 PR 번호와 리포지토리 정보 가져오기
     pull_number = int(os.getenv('GITHUB_PR_NUMBER'))
     
-    # 코드 차이 가져오기 및 리뷰 생성
-    diff = get_diff(pull_number)
-    review = generate_review(diff)
+    # 변경 사항 가져오기 및 리뷰 생성
+    changes = get_diff(pull_number)
+    review_comments = generate_review(changes)
 
-    # 리뷰 내용을 저장합니다
-    with open('review.txt', 'w') as f:
-        f.write(review)
+    # 리뷰 내용을 JSON 파일로 저장 (PR에 라인별로 추가할 수 있게)
+    with open('review_comments.json', 'w') as f:
+        json.dump(review_comments, f)

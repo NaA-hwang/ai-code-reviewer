@@ -1,21 +1,26 @@
 import os
+import json
 from github import Github
 
-def post_comment(review_text, pull_number):
-    # 환경 변수에서 리포지토리 정보 가져오기
+def post_review_comments(review_comments, pull_number):
     repo_name = os.getenv('GITHUB_REPOSITORY')
-    g = Github(os.getenv('GH_TOKEN'))
+    g = Github(os.getenv("GH_TOKEN"))
     repo = g.get_repo(repo_name)
     pull = repo.get_pull(pull_number)
     
-    # PR에 코멘트 작성
-    pull.create_issue_comment(review_text)
+    # PR에 리뷰 생성
+    pull.create_review(
+        event="COMMENT",
+        comments=review_comments
+    )
 
 if __name__ == "__main__":
-    # GitHub Actions에서 제공하는 PR 번호와 리포지토리 정보 사용
+    # GitHub Actions에서 제공하는 PR 번호 가져오기
     pull_number = int(os.getenv('GITHUB_PR_NUMBER'))
-
-    # 저장된 리뷰 파일을 읽고 코멘트로 남김
-    with open('review.txt', 'r') as f:
-        review = f.read()
-    post_comment(review, pull_number)
+    
+    # 저장된 리뷰 코멘트 파일 읽기
+    with open('review_comments.json', 'r') as f:
+        review_comments = json.load(f)
+    
+    # 리뷰 코멘트 PR에 추가하기
+    post_review_comments(review_comments, pull_number)
