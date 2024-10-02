@@ -55,14 +55,13 @@ def generate_review(diff):
     You should ensure that all answers are in Korean.
     
     Code comparison will be given by the user.
-    코드 변경:
-    {change['line']}
     """
         
     openai.api_key = os.getenv("OPENAI_API_KEY")
     response = openai.chat.completions.create(
         model="gpt-4o",
-        messages=[{"role": "system", "content": prompt}]
+        messages=[{"role": "system", "content": prompt},
+                    {"role": "user", "content": change['line']}]
         temperature=0
     )
     review_comments.append({
