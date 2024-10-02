@@ -4,7 +4,7 @@ from github import Github
 
 def post_review_comments(review_comments, pull_number):
     repo_name = os.getenv('GITHUB_REPOSITORY')
-    g = Github(os.getenv("GH_TOKEN"))
+    g = Github(os.getenv("GITHUB_TOKEN"))
     repo = g.get_repo(repo_name)
     pull = repo.get_pull(pull_number)
     
