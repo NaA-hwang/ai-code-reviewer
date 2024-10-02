@@ -49,13 +49,13 @@ def generate_review(diff):
     """
     
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    response = openai.Completion.create(
-        engine="text-davinci-003",
+    response = openai.chat.Completion.create(
+        model="gpt-4o",
         prompt=prompt,
         max_tokens=1000,
         temperature=0
     )
-    return response.choices[0].text.strip()
+    return response.choices[0].message
 
 if __name__ == "__main__":
     # GitHub Actions에서 제공하는 PR 번호와 리포지토리 정보 가져오기
