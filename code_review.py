@@ -29,47 +29,48 @@ def generate_review(diff):
     review_comments = []
     
     # 각 파일 및 변경된 코드에 대해 리뷰 생성
-    prompt = f"""
-    You are a strict and perfect code reviewer. You cannot tell any lies.
-    Please evaluate the code added or changed through Pull Requests.
+    for change in diff:
+        prompt = f"""
+        You are a strict and perfect code reviewer. You cannot tell any lies.
+        Please evaluate the code added or changed through Pull Requests.
 
-    According to the given evaluation criteria, if a code patch corresponds to any of the issues below, 
+        According to the given evaluation criteria, if a code patch corresponds to any of the issues below, 
 
-    There are four evaluation criteria. If multiple issues correspond to a single criteria , you should address them in a detailed manner:
-        - Feedback should describe what the issue is according to the evaluation criteria.
-        - Relevant_Lines should be written as "[line_num]-[line_num]", indicating the range of lines where the issue occurs.
-        - Suggested_Code should only include the revised code based on the feedback.
+        There are four evaluation criteria. If multiple issues correspond to a single criteria , you should address them in a detailed manner:
+            - Feedback should describe what the issue is according to the evaluation criteria.
+            - Relevant_Lines should be written as "[line_num]-[line_num]", indicating the range of lines where the issue occurs.
+            - Suggested_Code should only include the revised code based on the feedback.
 
-    If a criterion applies, none of the elements within that criterion (Feedback, Relevant_Lines, Suggested_Lines) should be omitted.
+        If a criterion applies, none of the elements within that criterion (Feedback, Relevant_Lines, Suggested_Lines) should be omitted.
 
-    If there are multiple entries corresponding to a criterion, include them within the same response.
-    If there are no issues corresponding to any of the criteria, return only the string 'No Issues Found'.
+        If there are multiple entries corresponding to a criterion, include them within the same response.
+        If there are no issues corresponding to any of the criteria, return only the string 'No Issues Found'.
 
-    The evaluation criteria are:
-        - Pre-condition_check: Check whether a function or method has the correct state or range of values for the variables needed to operate properly.
-        - Runtime Error Check: Check code for potential runtime errors and identify other possible risks.
-        - Security Issue: Check if the code uses modules with serious security flaws or contains security vulnerabilities.
-        - Optimization: Check for optimization points in the code patch. If the code is deemed to have performance issues, recommend optimized code.
+        The evaluation criteria are:
+            - Pre-condition_check: Check whether a function or method has the correct state or range of values for the variables needed to operate properly.
+            - Runtime Error Check: Check code for potential runtime errors and identify other possible risks.
+            - Security Issue: Check if the code uses modules with serious security flaws or contains security vulnerabilities.
+            - Optimization: Check for optimization points in the code patch. If the code is deemed to have performance issues, recommend optimized code.
 
-    You must follow the given YAML format exactly, and the output must be completely precise.
-    You should ensure that all answers are in Korean.
-    
-    Code comparison will be given by the user.
-    """
+        You must follow the given YAML format exactly, and the output must be completely precise.
+        You should ensure that all answers are in Korean.
         
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-    response = openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "system", "content": prompt},
-                    {"role": "user", "content": change['line']}]
-        temperature=0
-    )
-    review_comments.append({
-        "path": change['file'],  # 파일 이름
-        "position": change['line'],  # 변경된 줄
-        "body": response.choices[0].message.content  # AI가 생성한 리뷰
-    })
-    
+        Code comparison will be given by the user.
+        """
+            
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+        response = openai.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "system", "content": prompt},
+                        {"role": "user", "content": change['line']}]
+            temperature=0
+        )
+        review_comments.append({
+            "path": change['file'],  # 파일 이름
+            "position": change['line'],  # 변경된 줄
+            "body": response.choices[0].message.content  # AI가 생성한 리뷰
+        })
+        
     return review_comments
 
 
