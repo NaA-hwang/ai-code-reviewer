@@ -4,7 +4,7 @@ from github import Github
 def post_comment(review_text, pull_number):
     # 환경 변수에서 리포지토리 정보 가져오기
     repo_name = os.getenv('GITHUB_REPOSITORY')
-    g = Github(os.getenv('GITHUB_TOKEN'))
+    g = Github(os.getenv('TOKEN_GITHUB'))
     repo = g.get_repo(repo_name)
     pull = repo.get_pull(pull_number)
     
