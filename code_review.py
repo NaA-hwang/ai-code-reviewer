@@ -54,7 +54,7 @@ def generate_review(diff):
                     {role: "user", content: diff}],
         temperature=0
     )
-    return response.choices[0].message
+    return response.choices[0].message.content
 
 if __name__ == "__main__":
     # GitHub Actions에서 제공하는 PR 번호와 리포지토리 정보 가져오기
