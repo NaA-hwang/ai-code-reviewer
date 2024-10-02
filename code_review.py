@@ -62,7 +62,7 @@ def generate_review(diff):
         response = openai.chat.completions.create(
             model="gpt-4o",
             messages=[{"role": "system", "content": prompt},
-                        {"role": "user", "content": change['line']}]
+                        {"role": "user", "content": change['line']}],
             temperature=0
         )
         review_comments.append({
