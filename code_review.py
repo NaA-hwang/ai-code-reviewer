@@ -15,16 +15,21 @@ def get_diff(pull_number):
     changes = []
     for file in files:
         if file.patch:
-            for line in file.patch.split("\n"):
+            patch_lines = file.patch.split("\n")
+            position = 0  # 초기 position 값
+            for i, line in enumerate(patch_lines):
                 # '-'로 시작하는 줄은 삭제된 코드, '+'로 시작하는 줄은 추가된 코드
                 if line.startswith('+'):
+                    position = i  # 변경된 코드의 위치를 저장
                     changes.append({
                         "file": file.filename,
                         "line": line,
+                        "position": position,
                         "patch": file.patch
                     })
 
     return changes
+
 
 def generate_review(diff):
     review_comments = []
@@ -68,7 +73,7 @@ def generate_review(diff):
         )
         review_comments.append({
             "path": change['file'],  # 파일 이름
-            "position": change['line'],  # 변경된 줄
+            "position": change['position'],  # 변경된 줄 위치
             "body": response.choices[0].message.content  # AI가 생성한 리뷰
         })
         
