@@ -49,7 +49,7 @@ def generate_review(diff):
     """
     
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    response = openai.chat.Completion.create(
+    response = openai.chat.completions.create(
         model="gpt-4o",
         prompt=prompt,
         max_tokens=1000,
