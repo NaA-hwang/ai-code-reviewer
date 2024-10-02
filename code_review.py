@@ -3,9 +3,10 @@ import os
 from github import Github
 
 def get_diff(pull_number):
-    # GitHub 토큰으로 인증하고 리포지토리와 PR 정보 가져오기
+    # 환경 변수에서 리포지토리 정보 가져오기
+    repo_name = os.getenv('GITHUB_REPOSITORY')  # 'username/repo' 형식으로 전달됨
     g = Github(os.getenv('GITHUB_TOKEN'))
-    repo = g.get_repo('your-username/your-repo')  # 자신의 GitHub 리포지토리 정보
+    repo = g.get_repo(repo_name)  # 전달된 리포지토리 정보로 PR 접근
     pull = repo.get_pull(pull_number)
     
     # PR에서 변경된 코드(diff)를 가져옴
@@ -34,7 +35,7 @@ def generate_review(diff):
     return response.choices[0].text.strip()
 
 if __name__ == "__main__":
-    # GitHub Actions에서 제공하는 환경 변수로 PR 번호 가져오기
+    # GitHub Actions에서 제공하는 PR 번호와 리포지토리 정보 가져오기
     pull_number = int(os.getenv('GITHUB_PR_NUMBER'))
     
     # 코드 차이 가져오기 및 리뷰 생성
